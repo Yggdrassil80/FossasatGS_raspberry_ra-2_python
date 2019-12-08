@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python3 /data/fossa/fossasat1-gs/fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 32 
+ExecStart=/usr/bin/python3 /data/fossa/fossasat1-gs/fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 8 
 Restart=always
 RestartSec=0
 
