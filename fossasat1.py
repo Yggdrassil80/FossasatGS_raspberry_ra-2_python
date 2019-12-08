@@ -426,7 +426,9 @@ lora.set_pa_config(pa_select=1)
 #lora.set_pa_ramp(PA_RAMP.RAMP_50_us)
 #lora.set_agc_auto_on(True)
 
-lora.set_sync_word(int.from_bytes(b'\x0F\x0F', "big"))
+#lora.set_sync_word(int.from_bytes(b'\x0F\x0F', "big"))
+lora.set_sync_word(0xFF)
+
 
 #print SX12XX registers
 loggerpy1.debug("[Main] " + str(lora))
