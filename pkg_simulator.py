@@ -35,7 +35,7 @@ from SX127x.board_config import BOARD
 #Logger de funcionamiento interno de la libreria
 loggerpy = logging.getLogger('pyLora Logger')
 loggerpy.setLevel(logging.INFO)
-fh1 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/Sender_pyLora.log')
+fh1 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/pkg-simulator.log')
 fh1.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh1.setFormatter(formatter)

@@ -38,7 +38,7 @@ parser = LoRaArgumentParser("Fossasat1 - Ground Station - Reciver")
 #Logger for scientific data
 logger = logging.getLogger('fossa_logger')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler('/data/fossa/fossasat1-gs/logs/fossasat-1.log')
+fh = logging.FileHandler('/data/fossa/fossasat1-gs/logs/fossa-gs-data.log')
 fh.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh.setFormatter(formatter)
@@ -47,7 +47,7 @@ logger.addHandler(fh)
 #Logger of reciver
 loggerpy1 = logging.getLogger('pyLora Logger1')
 loggerpy1.setLevel(logging.DEBUG)
-fh2 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/Reciver_pyLora.log')
+fh2 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/fossa-gs.log')
 fh2.setLevel(logging.DEBUG)
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh2.setFormatter(formatter)
@@ -76,7 +76,7 @@ PRIVATE_OFFSET = 0x20
 CMD_PING = '\x00'
 RESP_PONG = '\x10'
 CMD_RETRANSMIT = '\x01'
-RESP_RETRANSMIT = '\x11' 
+RESP_RETRANSMIT = '\x11'
 CMD_RETRANSMIT_CUSTOM = '\x02'
 RESP_RETRANSMIT_CUSTOM = '\x12'
 CMD_TRANSMIT_SYSTEM_INFO = '\x03'
@@ -212,7 +212,7 @@ class LoRaRcvCont(LoRa):
             #sys.stdout.write("\r%d %d %d" % (rssi_value, status['rx_ongoing'], status['modem_clear']))
             rxo = status['rx_ongoing']
             loggerpy1.info("[start][rssi: " + str(rssi_value) + "][snr: " + str(snr) + "][rx_ongoing: " + str(rxo) + "]")
-            
+
 
                 #rx_coding_rate    = status >> 5 & 0x03,
                 #modem_clear       = status >> 4 & 0x01,
@@ -233,7 +233,7 @@ def sendStatusMQTT(status):
     act = ConfigHelper.isMQTTActive()
     try:
         if act == MQTT_ACTIVE:
-        
+
             loggerpy1.info("[sendStatusMQTT][INI]")
             broker = ConfigHelper.getMqttBroker()
             loggerpy1.debug("[sendStatusMQTT][broker: " + broker + "]")
@@ -246,7 +246,7 @@ def sendStatusMQTT(status):
             certPath = ConfigHelper.getMqttCertPath()
             loggerpy1.debug("[sendStatusMQTT][certpath: " + certPath + "]")
             loggerpy1.debug("[sendStatusMQTT][Config Params read OK]")
-        
+
             client1 = paho.Client()
             client1.on_publish = on_publish
             client1.on_connect = on_connect
@@ -279,7 +279,7 @@ def sendWelcomeMQTT(stationName, StationLoc, ver):
         certPath = ConfigHelper.getMqttCertPath()
         loggerpy1.debug("[sendWelcomeMQTT][certpath: " + certPath + "]")
         loggerpy1.debug("[sendWelcomeMQTT][Config Params read OK]")
-        
+
         client1 = paho.Client()
         client1.on_publish = on_publish
         client1.on_connect = on_connect
@@ -290,10 +290,10 @@ def sendWelcomeMQTT(stationName, StationLoc, ver):
         loggerpy1.info("[sendWelcomeMQTT][Mqtt service connected OK]")
         ret = client1.publish(stationName + "/welcome", msg)
         client1.disconnect()
-        
+
 def sendMsgMQTT(message,command):
     act = ConfigHelper.isMQTTActive()
-    
+
     try:
         if act == MQTT_ACTIVE:
 
@@ -312,7 +312,7 @@ def sendMsgMQTT(message,command):
             print("pasa5")
             msg=createMessage(message,command)
             print("pasa6 msg " + str(msg))
-        
+
             client1 = paho.Client()
             client1.on_publish = on_publish
             client1.on_connect = on_connect
@@ -348,7 +348,7 @@ def createMessage(msg,command):
     try:
         stationName = ConfigHelper.getStationName()
         stationLoc = ConfigHelper.getStationLocation()
-    
+
         rssi = "0.0"
         snr = "0.0"
         freqErr = "0.0"
@@ -363,7 +363,7 @@ def createMessage(msg,command):
         mcuTemperature = "0.0"
         resetCounter = "0"
         powerConfig = "255"
-    
+
         payload = get_payload(command, msg)
         if command == RESP_PONG: #0x10
             loggerpy1.info("[createMessage][Processing PONG...]")
