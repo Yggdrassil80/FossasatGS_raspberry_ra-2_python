@@ -1,3 +1,11 @@
+# Introduction
+
+This code was tested between two SX1278 LoRa chips. Fossasat-1 has one SX1262 that are configured in a incompatible sync_word with SX127x LoRa Chips.
+
+SX126x has 16 bits in a sync_word register and SX127x has only 8-bit. The value setter in the sat was 0x0F0F and its impossible to configure SX127x with this sync_word.
+
+For this reason, the code bellow can only works with LoRa chips based on SX126x.
+
 # Libraries needed
 
 pip3 install paho-mqtt
@@ -7,11 +15,11 @@ pip3 install configparser
 
 ## Start Reciver
 
-python3 fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 32
+python3 fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 8
 
 ## Start Sender
 
-python3 sender_fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 32 -S
+python3 sender_fossasat1.py -s 11 -f 436.700 -b BW125 --cr CR4_8 -p 8 -S
 
 ## Start Reciver as a Service
 
@@ -23,7 +31,7 @@ To create a Revicer service, you can do this:
 
 1. Edit <home>/services/fossaService.service
 
-'''
+```
 [Unit]
 Description=Fossa Service
 After=multi-user.target
@@ -36,9 +44,9 @@ RestartSec=0
 
 [Install]
 WantedBy=multi-user.target
-'''
+```
 
-NOTE: For fossasat1 "-p 32" configuration is actually not confirmed, only supposed.
+NOTE: For fossasat1 "-p 8" configuration is actually not confirmed, only supposed.
 
 and change all needed configurations
 
@@ -80,9 +88,7 @@ isActive=1 <-- flag to activate or desactivate (1/0) send information to MQTT se
 
 IMPORTANT: 
 
-- To use this parameters the function that can read them are placed in ConfigHelper python module. Is you add, modify or delete configuration, is necessary modify these code.
-- Another important thing is that all functions has hardcoded the conf path (sorry ;))
-
+* To use this parameters the function that can read them are placed in ConfigHelper python module. Is you add, modify or delete configuration, is necessary modify these code
 # Design
 
 TODO
@@ -91,9 +97,9 @@ TODO
 
 At the moment, all logs are placed staticly here /data/fossa/fossasat1/logs 
 
-- /data/fossa/fossasat1-gs/logs/fossasat-1.log: All data recived and parsed is stored here
-- /data/fossa/fossasat1-gs/logs/Reciver_pyLora.log: All data about Reciver functionaly
-- /data/fossa/fossasat1-gs/logs/Sender_pyLora.log: All data about Sender functionality
+* /data/fossa/fossasat1-gs/logs/fossasat-1.log: All data recived and parsed is stored here
+* /data/fossa/fossasat1-gs/logs/Reciver_pyLora.log: All data about Reciver functionaly
+* /data/fossa/fossasat1-gs/logs/Sender_pyLora.log: All data about Sender functionality
 
 # Credits
 
