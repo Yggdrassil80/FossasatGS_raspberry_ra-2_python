@@ -1,13 +1,14 @@
 import paho.mqtt.client as paho
 import ConfigHelper
 import logging
+import datetime
 
 #broker = "fossa.apaluba.com"
 #port = 8883
 
 loggermqtt = logging.getLogger('mqtt Logger1')
 loggermqtt.setLevel(logging.INFO)
-fh3 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/mqttService.log')
+fh3 = logging.FileHandler('mqttService.log')
 fh3.setLevel(logging.INFO)
 formatter1 = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh3.setFormatter(formatter1)
@@ -112,7 +113,11 @@ try:
     statusMessage = ""
     dataMessage = createMsgInfoMessage(stationName, stationLocation)
     loggermqtt.info("[MqttService][dataMessage: " + dataMessage + "]")
-    pongMessage = createPongMessage(stationName, stationLocation, 1576447659)
+    
+    time = datetime.datetime.now()
+    unixGSTime = time.timestamp() * 1000
+
+    pongMessage = createPongMessage(stationName, stationLocation, str(unixGSTime))
     loggermqtt.info("[MqttService][pongMessage: " + pongMessage + "]")
 
     print ("Publicando en /welcome")
@@ -133,6 +138,6 @@ try:
 
 #print ("Publicando en /status")
 #ret = client1.publish("YGGGS01/status","[YGG-GS01:mqtt_pusblish_test]")
-except Exception, e:
+except Exception as e:
     print(e)
     print("ERROR")

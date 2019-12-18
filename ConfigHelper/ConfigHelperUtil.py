@@ -2,7 +2,7 @@
 
 import configparser as ConfigParser
 
-CONF_PATH = "/data/fossa/fossasat1-gs/conf/fossa.conf"
+CONF_PATH = "conf/fossa.conf"
 
 def getFrecuency():
         try:

@@ -29,6 +29,7 @@ from SX127x.board_config import BOARD
 import logging
 import ConfigHelper
 import paho.mqtt.client as paho
+import datetime
 
 BOARD.setup()
 BOARD.reset()
@@ -38,7 +39,7 @@ parser = LoRaArgumentParser("Fossasat1 - Ground Station - Reciver")
 #Logger for scientific data
 logger = logging.getLogger('fossa_logger')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler('/data/fossa/fossasat1-gs/logs/fossa-gs-data.log')
+fh = logging.FileHandler('fossa-gs-data.log')
 fh.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh.setFormatter(formatter)
@@ -47,7 +48,7 @@ logger.addHandler(fh)
 #Logger of reciver
 loggerpy1 = logging.getLogger('pyLora Logger1')
 loggerpy1.setLevel(logging.DEBUG)
-fh2 = logging.FileHandler('/data/fossa/fossasat1-gs/logs/fossa-gs.log')
+fh2 = logging.FileHandler('fossa-gs.log')
 fh2.setLevel(logging.DEBUG)
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(message)s]')
 fh2.setFormatter(formatter)
@@ -153,7 +154,9 @@ class LoRaRcvCont(LoRa):
            snr = self.get_pkt_snr_value()
            loggerpy1.debug("[on_rx_done][SNR: " + str(snr) + "]")
            command = get_command(msg[10])
-           sendMsgMQTT(str(msg),command)
+           time = datetime.datetime.now()
+           unixGSTime = time.timestamp() * 1000
+           sendMsgMQTT(str(msg),command,str(unixGSTime))
            loggerpy1.debug("[on_rx_done][Get Command: " + str(command) + "]")
            payload1 = get_payload(command, msg)
            loggerpy1.debug("[on_rx_done][Get Process payload: " + str(payload1) + "]")
@@ -291,7 +294,7 @@ def sendWelcomeMQTT(stationName, StationLoc, ver):
         ret = client1.publish(stationName + "/welcome", msg)
         client1.disconnect()
 
-def sendMsgMQTT(message,command):
+def sendMsgMQTT(message,command,unixGSTime):
     act = ConfigHelper.isMQTTActive()
 
     try:
@@ -310,7 +313,7 @@ def sendMsgMQTT(message,command):
             loggerpy1.debug("[sendMsgMQTT][certpath: " + certPath + "]")
             loggerpy1.debug("[sendMsgMQTT][Config Params read OK]")
             print("pasa5")
-            msg=createMessage(message,command)
+            msg=createMessage(message,command,unixGSTime)
             print("pasa6 msg " + str(msg))
 
             client1 = paho.Client()
@@ -334,7 +337,7 @@ def sendMsgMQTT(message,command):
         loggerpy1.info("[sendMsgMQTT][ERROR] " + e)
 
 #Procedure to create a message for MQTT using command information
-def createMessage(msg,command):
+def createMessage(msg,command,unixGSTime):
 
     loggerpy1.info("[createMessage][INI]")
     #detectar de que tipo de mensaje se trata
@@ -367,7 +370,7 @@ def createMessage(msg,command):
         payload = get_payload(command, msg)
         if command == RESP_PONG: #0x10
             loggerpy1.info("[createMessage][Processing PONG...]")
-            data = "{\"station\":\"" + stationName + "\",\"station_location\":[" + stationLoc + "],\"rssi\":" + rssi + ",\"snr\":" + snr + ",\"frequency_error\":" + freqErr + "}"
+            data = createPongMessage(stationName, stationLoc, unixGSTime)
         if command == RESP_RETRANSMIT:
             data = "{\"station\":\"" + stationName + "\",\"station_location\":[" + stationLoc + "],\"rssi\":" + rssi + ",\"snr\":" + snr + ",\"frequency_error\":" + freqErr + ",\"msg\":" + payload  + "}"
         if command == RESP_RETRANSMIT_CUSTOM:
@@ -393,6 +396,19 @@ def createMessage(msg,command):
         loggerpy1.error("[createMessage][ERROR] " + e)
 
     return data
+
+#Procedure to create a pong menssage for mqtt
+def createPongMessage(stationName, stationLocation, unixGSTime):
+
+    rssi = "0.0"
+    snr = "0.0"
+    freqErr = "0.0"
+
+    msg = "{\"station\":\"" + stationName + "\",\"station_location\":[" + stationLocation + "],\"unix_GS_time\":" + str(unixGSTime) + ",\"rssi\":" + rssi + ",\"snr\":" + snr + ",\"frequency_error\":" + freqErr + ",\"pong\":1}"
+
+    loggerpy1.debug("[createPongMessage][" + msg + "]")
+
+    return msg
 
 #Procedure to create welcome message
 def createWelcomeMessage(station, stationLocation, version):
