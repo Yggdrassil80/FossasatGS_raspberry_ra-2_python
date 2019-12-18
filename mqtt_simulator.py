@@ -39,6 +39,27 @@ def createMsgInfoMessage(stationName, stationLocation):
     data = "{\"station\":\"" + stationName + "\",\"station_location\":[" + stationLocation + "],\"rssi\":" + rssi + ",\"snr\":" + snr + ",\"frequency_error\":" + freqErr + ",\"batteryChargingVoltage\":" + batteryChargingVoltage + ",\"batteryChargingCurrent\":" + batteryChargingCurrent + ",\"batteryVoltage\":" + batteryChargingCurrent + ",\"solarCellAVoltage\":" + solarCellAVoltage + ",\"solarCellBVoltage\":" + solarCellBVoltage + ",\"solarCellCVoltage\":" + solarCellBVoltage + ",\"batteryTemperature\":" + batteryTemperature + ",\"boardTemperature\":" + boardTemperature + ",\"mcuTemperature\":" + mcuTemperature + ",\"resetCounter\":" + resetCounter + ",\"powerConfig\":" + powerConfig + "}"
 
     return data
+
+def createPongMessage(stationName, stationLocation, unixGSTime):
+
+    rssi = "0.0"
+    snr = "0.0"
+    freqErr = "0.0"
+
+    part1 = "{\"station\":\"" + stationName + "\",\"station_location\":["
+    part2 = stationLocation + "],\"unix_GS_time\":" + str(unixGSTime) + ",\"rssi\":" + rssi + ",\"snr\":" + snr 
+    part3 = ",\"frequency_error\":" + freqErr + ",\"pong\":1}"
+
+    print("[createPongMessage][" + part1 + part2 + part3 + "]")
+
+    return part1 + part2 + part3
+
+def createRelayMessage(stationName, stationLocation):
+    
+    return stationName + "Dummy Relay Message"
+
+
+
 def on_publish(client, userdata, result):
     #loggermqtt.info("[on_publish][Data published with code: " + str(result) + "]")
     print("[on_publish][Data published with code: " + str(result) + "]")
@@ -91,6 +112,8 @@ try:
     statusMessage = ""
     dataMessage = createMsgInfoMessage(stationName, stationLocation)
     loggermqtt.info("[MqttService][dataMessage: " + dataMessage + "]")
+    pongMessage = createPongMessage(stationName, stationLocation, 1576447659)
+    loggermqtt.info("[MqttService][pongMessage: " + pongMessage + "]")
 
     print ("Publicando en /welcome")
     #message = "\n\r{\"station\":\"YGG-GS01\",\"station_location\":[41.40,2.18],\"version\":1912042}"
@@ -102,6 +125,11 @@ try:
 
     ret = client1.publish(stationName + "/status", "1")
 
+    ret = client1.publish(stationName + "/pong", pongMessage)
+
+    #ret = client1.publish(stationName + "/relay", relayMessage)
+
+    ret = client1.publish(stationName + "/status", "0")
 
 #print ("Publicando en /status")
 #ret = client1.publish("YGGGS01/status","[YGG-GS01:mqtt_pusblish_test]")
